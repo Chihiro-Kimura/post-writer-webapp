@@ -5,23 +5,38 @@ import { PrismaAdapter } from '@next-auth/prisma-adapter';
 import { db } from './db';
 
 export const authOptions: NextAuthOptions = {
+  // 認証プロバイダーの設定
   providers: [
+    // GitHub認証の設定
     GithubProvider({
       clientId: process.env.GITHUB_ID!,
       clientSecret: process.env.GITHUB_SECRET!,
     }),
+    // Google認証の設定
     GoogleProvider({
       clientId: process.env.GOOGLE_ID!,
       clientSecret: process.env.GOOGLE_SECRET!,
     }),
   ],
+  // Prismaアダプターの設定（データベース連携用）
   adapter: PrismaAdapter(db),
+  // カスタムページの設定
   pages: {
-    signIn: '/login',
+    signIn: '/login', // ログインページのカスタムパス
   },
   callbacks: {
+    // JWTトークン生成時のコールバック
+    async jwt({ token, user }) {
+      if (user) {
+        // ユーザー情報がある場合、トークンにユーザーIDを追加
+        return { ...token, id: user.id };
+      }
+      return token;
+    },
+    // セッション処理時のコールバック
     async session({ session, token }) {
       if (token) {
+        // トークンの情報をセッションのユーザー情報に反映
         session.user.id = token.id;
         session.user.name = token.name;
         session.user.email = token.email;
@@ -29,5 +44,9 @@ export const authOptions: NextAuthOptions = {
       }
       return session;
     },
+  },
+  // セッション管理の設定
+  session: {
+    strategy: 'jwt', // JWTベースのセッション管理を使用
   },
 };
