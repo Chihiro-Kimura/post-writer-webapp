@@ -1,0 +1,106 @@
+---
+title: 'Next.jsとContentlayerでモダンなブログを作る'
+date: 2025-01-13
+description: 'Next.js App RouterとContentlayerを使用した、最新のブログ開発手法について解説します'
+published: true
+image: '/images/download.png'
+---
+
+Next.js の App Router と Contentlayer を組み合わせることで、モダンで保守性の高いブログサイトを構築できます。この記事では、その実装方法について詳しく解説します。
+
+## 技術スタック
+
+本プロジェクトでは以下の技術を採用しています：
+
+- **Next.js (App Router)** - ページルーティングとレイアウト管理
+- **Contentlayer** - MDX コンテンツの型安全な管理
+- **Tailwind CSS** - スタイリング
+- **shadcn/ui** - UI コンポーネント
+
+## セットアップ手順
+
+### 1. プロジェクトの作成
+
+まず、Next.js プロジェクトを作成します：
+
+```bash
+npx create-next-app@latest my-blog --typescript --tailwind --app
+cd my-blog
+```
+
+### 2. 必要なパッケージのインストール
+
+```bash
+npm install contentlayer next-contentlayer date-fns
+```
+
+### 3. Contentlayer の設定
+
+`contentlayer.config.ts`を作成し、ブログ記事の型定義を行います：
+
+```typescript
+import { defineDocumentType, makeSource } from 'contentlayer/source-files';
+
+export const Post = defineDocumentType(() => ({
+  name: 'Post',
+  filePathPattern: `blog/**/*.mdx`,
+  contentType: 'mdx',
+  fields: {
+    title: { type: 'string', required: true },
+    date: { type: 'date', required: true },
+    description: { type: 'string' },
+    published: { type: 'boolean', required: true },
+    image: { type: 'string', required: true },
+  },
+  computedFields: {
+    slug: {
+      type: 'string',
+      resolve: (doc) => `/${doc._raw.flattenedPath}`,
+    },
+  },
+}));
+```
+
+## ブログ記事の作成方法
+
+記事は`content/blog`ディレクトリ内に MDX ファイルとして作成します。以下のような形式で書きます：
+
+1. フロントマターで記事のメタデータを定義
+2. 本文をマークダウン形式で記述
+3. 必要に応じて React コンポーネントを埋め込み
+
+### マークダウンの基本記法
+
+```markdown
+# 大見出し（h1）
+
+## 中見出し（h2）
+
+### 小見出し（h3）
+
+- リスト項目 1
+- リスト項目 2
+  - ネストされたリスト
+
+1. 番号付きリスト
+2. 二番目の項目
+
+**太字** や _イタリック_ も使えます
+
+[リンクテキスト](https://example.com)
+
+![画像の代替テキスト](/path/to/image.png)
+```
+
+## まとめ
+
+Next.js と Contentlayer の組み合わせにより：
+
+- 型安全なコンテンツ管理
+- マークダウンと React コンポーネントの共存
+- 優れた開発者体験
+- 高いパフォーマンス
+
+を実現できます。
+
+次回は、タグ機能や検索機能の実装方法について解説する予定です。
