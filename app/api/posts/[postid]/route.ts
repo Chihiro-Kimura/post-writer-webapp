@@ -37,6 +37,23 @@ export async function PATCH(
   }
 }
 
+export async function DELETE(
+  req: NextRequest,
+  context: z.infer<typeof routeContextSchema>
+) {
+  try {
+    const { params } = routeContextSchema.parse(context);
+    await verifyCurrentUserHasAccessToPost(params.postid);
+
+    await db.post.delete({
+      where: { id: params.postid },
+    });
+    return NextResponse.json({ message: 'Post deleted' }, { status: 200 });
+  } catch (error) {
+    return NextResponse.json({ error: 'Invalid request' }, { status: 400 });
+  }
+}
+
 async function verifyCurrentUserHasAccessToPost(postId: string) {
   const session = await getServerSession(authOptions);
   const count = await db.post.count({
