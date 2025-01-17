@@ -4,6 +4,7 @@ import './globals.css';
 import { cn } from '@/lib/utils';
 import { siteConfig } from '@/config/site';
 import { Toaster } from '@/components/ui/toaster';
+import { Providers } from '@/components/providers';
 
 const NotoSansJP = Noto_Sans_JP({
   variable: '--font-noto-sans-jp',
@@ -42,14 +43,14 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="ja">
+    <html lang="ja" suppressHydrationWarning>
       <body
         className={cn(
           'antialiased min-h-screen bg-background',
           NotoSansJP.variable
         )}
       >
-        {children}
+        <Providers>{children}</Providers>
         <Toaster />
       </body>
     </html>

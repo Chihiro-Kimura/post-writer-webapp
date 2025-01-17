@@ -2,6 +2,7 @@ import MainNav from '@/components/main-nav';
 import { dashboardConfig } from '@/config/dashboard';
 import { DashboardNav } from '@/components/dashboard-nav';
 import SiteFooter from '@/components/site-footer';
+import { UserNav } from '@/components/user-nav';
 
 export default async function DashboardLayout({
   children,
@@ -13,6 +14,7 @@ export default async function DashboardLayout({
       <header className="sticky top-0 z-40 border-b bg-background">
         <div className="container flex h-16 items-center justify-between py-4">
           <MainNav items={dashboardConfig.mainNav} />
+          <UserNav />
         </div>
       </header>
       <div className="container grid flex-1 gap-12 md:grid-cols-[200px_1fr]">

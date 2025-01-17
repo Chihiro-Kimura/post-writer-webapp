@@ -132,7 +132,11 @@ export default function Editor({ post }: EditorProps) {
             </Link>
             <p className="text-sm text-muted-foreground">公開</p>
           </div>
-          <button className={buttonVariants()} type="submit">
+          <button
+            className={buttonVariants()}
+            type="submit"
+            disabled={isSaving}
+          >
             {isSaving ? (
               <Icons.spinner className="w-4 h-4 animate-spin" />
             ) : (
