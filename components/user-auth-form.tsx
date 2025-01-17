@@ -5,10 +5,9 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { buttonVariants } from '@/components/ui/button';
-import { Icon } from '@/components/icon';
 import { signIn } from 'next-auth/react';
 import { useState } from 'react';
-
+import { Icons } from '@/components/icon';
 export default function UserAuthForm() {
   const [isGithubLoading, setIsGithubLoading] = useState<boolean>(false);
   const [isGoogleLoading, setIsGoogleLoading] = useState<boolean>(false);
@@ -46,9 +45,9 @@ export default function UserAuthForm() {
           className={cn(buttonVariants({ variant: 'outline' }), 'text-black')}
         >
           {isGithubLoading ? (
-            <Icon.spinner className="mr-2 animate-spin" />
+            <Icons.spinner className="mr-2 animate-spin" />
           ) : (
-            <Icon.github className="mr-2" />
+            <Icons.github className="mr-2" />
           )}
           GitHubでログイン
         </Button>
@@ -61,9 +60,9 @@ export default function UserAuthForm() {
           className={cn(buttonVariants({ variant: 'outline' }), 'text-black')}
         >
           {isGoogleLoading ? (
-            <Icon.spinner className="mr-2 animate-spin" />
+            <Icons.spinner className="mr-2 animate-spin" />
           ) : (
-            <Icon.google className="mr-2" />
+            <Icons.google className="mr-2" />
           )}
           Googleでログイン
         </Button>
