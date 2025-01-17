@@ -1,13 +1,13 @@
 'use client';
 
-import { Post } from '@prisma/client';
+import { type Post } from '.prisma/client';
 import {
   DropdownMenu,
   DropdownMenuTrigger,
   DropdownMenuContent,
   DropdownMenuSeparator,
   DropdownMenuItem,
-} from './ui/dropdown-menu';
+} from '@/components/ui/dropdown-menu';
 import {
   AlertDialog,
   AlertDialogAction,

@@ -16,8 +16,9 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { postPatchSchema } from '@/lib/validations/post';
 import { useRouter } from 'next/navigation';
 import { useToast } from '@/components/ui/use-toast';
-import { Post } from '@prisma/client';
+import { type Post } from '.prisma/client';
 import { Icons } from '@/components/icon';
+import type { OutputData } from '@editorjs/editorjs';
 
 interface EditorProps {
   post: Pick<Post, 'id' | 'title' | 'content' | 'published'>;
@@ -30,9 +31,9 @@ export default function Editor({ post }: EditorProps) {
   const { toast } = useToast();
   const router = useRouter();
 
-  const body = useMemo(() => {
+  const body: OutputData = useMemo(() => {
     return post.content
-      ? post.content
+      ? (post.content as unknown as OutputData)
       : {
           blocks: [],
         };
@@ -83,11 +84,7 @@ export default function Editor({ post }: EditorProps) {
     };
   }, [isMounted, initializeEditor]);
 
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-  } = useForm<postPatchSchema>({
+  const { register, handleSubmit } = useForm<postPatchSchema>({
     resolver: zodResolver(postPatchSchema),
   });
 
