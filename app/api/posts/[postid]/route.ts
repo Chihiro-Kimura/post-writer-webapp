@@ -49,7 +49,7 @@ export async function DELETE(
       where: { id: params.postid },
     });
     return NextResponse.json({ message: 'Post deleted' }, { status: 200 });
-  } catch (error) {
+  } catch {
     return NextResponse.json({ error: 'Invalid request' }, { status: 400 });
   }
 }

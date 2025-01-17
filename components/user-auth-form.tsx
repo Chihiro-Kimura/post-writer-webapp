@@ -8,6 +8,7 @@ import { buttonVariants } from '@/components/ui/button';
 import { signIn } from 'next-auth/react';
 import { useState } from 'react';
 import { Icons } from '@/components/icon';
+
 export default function UserAuthForm() {
   const [isGithubLoading, setIsGithubLoading] = useState<boolean>(false);
   const [isGoogleLoading, setIsGoogleLoading] = useState<boolean>(false);
@@ -40,7 +41,7 @@ export default function UserAuthForm() {
         <Button
           onClick={() => {
             setIsGithubLoading(true);
-            signIn('github');
+            signIn('github', { callbackUrl: '/dashboard' });
           }}
           className={cn(buttonVariants({ variant: 'outline' }), 'text-black')}
         >
@@ -55,7 +56,7 @@ export default function UserAuthForm() {
         <Button
           onClick={() => {
             setIsGoogleLoading(true);
-            signIn('google');
+            signIn('google', { callbackUrl: '/dashboard' });
           }}
           className={cn(buttonVariants({ variant: 'outline' }), 'text-black')}
         >
