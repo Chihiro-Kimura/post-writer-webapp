@@ -2,7 +2,7 @@
 import { defineDocumentType, makeSource } from "contentlayer/source-files";
 var Post = defineDocumentType(() => ({
   name: "Post",
-  filePathPattern: `blog/**/*.mdx`,
+  filePathPattern: `blog/**/*.{md,mdx}`,
   contentType: "mdx",
   fields: {
     title: {
@@ -14,15 +14,17 @@ var Post = defineDocumentType(() => ({
       required: true
     },
     description: {
-      type: "string"
+      type: "string",
+      required: false
     },
     published: {
       type: "boolean",
-      required: true
+      required: false,
+      default: true
     },
     image: {
       type: "string",
-      required: true
+      required: false
     }
   },
   computedFields: {
@@ -44,4 +46,4 @@ export {
   Post,
   contentlayer_config_default as default
 };
-//# sourceMappingURL=compiled-contentlayer-config-WPRRFEPX.mjs.map
+//# sourceMappingURL=compiled-contentlayer-config-6VHD5JVO.mjs.map
