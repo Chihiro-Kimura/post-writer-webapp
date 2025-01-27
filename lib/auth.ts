@@ -3,6 +3,7 @@ import GithubProvider from 'next-auth/providers/github';
 import GoogleProvider from 'next-auth/providers/google';
 import { PrismaAdapter } from '@next-auth/prisma-adapter';
 import { db } from './db';
+import { NextApiRequest, NextApiResponse } from 'next';
 
 export const authOptions: NextAuthOptions = {
   providers: [
@@ -44,3 +45,9 @@ export const authOptions: NextAuthOptions = {
     strategy: 'jwt',
   },
 };
+
+export default function handler(_: NextApiRequest, res: NextApiResponse) {
+  res.setHeader('WWW-authenticate', 'Basic realm="Secure Area"');
+  res.statusCode = 401;
+  res.end(`Auth Required.`);
+}
