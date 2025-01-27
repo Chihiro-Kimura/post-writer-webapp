@@ -118,28 +118,30 @@ export default function Editor({ post }: EditorProps) {
 
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
-      <div className="grid w-full gap-10">
-        <div className="flex items-center justify-between w-full">
-          <div className="flex items-center space-x-10">
-            <Link
-              href="/dashboard"
-              className={buttonVariants({ variant: 'ghost' })}
+      <div className="grid w-full gap-6 md:gap-10">
+        <div className="sticky top-0 z-50 w-full bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+          <div className="flex flex-col sm:flex-row items-center justify-between w-full max-w-[800px] mx-auto px-4 sm:px-6 py-4">
+            <div className="flex items-center space-x-4 sm:space-x-10 mb-4 sm:mb-0">
+              <Link
+                href="/dashboard"
+                className={buttonVariants({ variant: 'ghost' })}
+              >
+                戻る
+              </Link>
+              <p className="text-sm text-muted-foreground">公開</p>
+            </div>
+            <button
+              className={buttonVariants()}
+              type="submit"
+              disabled={isSaving}
             >
-              戻る
-            </Link>
-            <p className="text-sm text-muted-foreground">公開</p>
+              {isSaving ? (
+                <Icons.spinner className="w-4 h-4 animate-spin" />
+              ) : (
+                <span>保存</span>
+              )}
+            </button>
           </div>
-          <button
-            className={buttonVariants()}
-            type="submit"
-            disabled={isSaving}
-          >
-            {isSaving ? (
-              <Icons.spinner className="w-4 h-4 animate-spin" />
-            ) : (
-              <span>保存</span>
-            )}
-          </button>
         </div>
         <div className="w-[800px] mx-auto">
           <TextareaAutosize
