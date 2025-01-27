@@ -24,8 +24,8 @@ export default withAuth(
   },
   {
     callbacks: {
-      async authorized({ req, token }) {
-        return true;
+      authorized({ req, token }) {
+        return !!token;
       },
     },
   }

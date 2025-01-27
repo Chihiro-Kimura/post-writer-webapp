@@ -16,13 +16,40 @@ export default function UserAuthForm() {
   async function loginWithGoogle() {
     setIsGoogleLoading(true);
     try {
-      await signIn('google', {
+      const result = await signIn('google', {
         callbackUrl: '/dashboard',
+        redirect: true,
       });
+
+      if (result?.error) {
+        console.error('Login failed:', result.error);
+        // エラー表示の処理を追加
+      }
     } catch (error) {
-      // エラー処理
+      console.error('Login error:', error);
+      // エラー表示の処理を追加
     } finally {
       setIsGoogleLoading(false);
+    }
+  }
+
+  async function loginWithGithub() {
+    setIsGithubLoading(true);
+    try {
+      const result = await signIn('github', {
+        callbackUrl: '/dashboard',
+        redirect: true,
+      });
+
+      if (result?.error) {
+        console.error('Login failed:', result.error);
+        // エラー表示の処理を追加
+      }
+    } catch (error) {
+      console.error('Login error:', error);
+      // エラー表示の処理を追加
+    } finally {
+      setIsGithubLoading(false);
     }
   }
 
@@ -52,11 +79,9 @@ export default function UserAuthForm() {
       </div>
       <div className="flex flex-col gap-3">
         <Button
-          onClick={() => {
-            setIsGithubLoading(true);
-            signIn('github', { callbackUrl: '/dashboard' });
-          }}
+          onClick={loginWithGithub}
           className={cn(buttonVariants({ variant: 'outline' }), 'text-black')}
+          disabled={isGithubLoading}
         >
           {isGithubLoading ? (
             <Icons.spinner className="mr-2 animate-spin" />
@@ -69,6 +94,7 @@ export default function UserAuthForm() {
         <Button
           onClick={loginWithGoogle}
           className={cn(buttonVariants({ variant: 'outline' }), 'text-black')}
+          disabled={isGoogleLoading}
         >
           {isGoogleLoading ? (
             <Icons.spinner className="mr-2 animate-spin" />
