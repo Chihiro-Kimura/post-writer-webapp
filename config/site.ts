@@ -7,6 +7,6 @@ export const siteConfig: SiteConfig = {
   ogImage: '/og.png',
   links: {
     X: 'https://x.com/your_twitter_handle',
-    Github: 'https://github.com/your_github_handle',
+    Github: 'https://github.com/https://github.com/Chihiro-Kimura',
   },
 };
