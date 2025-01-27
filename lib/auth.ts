@@ -25,6 +25,7 @@ export const authOptions: NextAuthOptions = {
   // カスタムページの設定
   pages: {
     signIn: '/login', // ログインページのカスタムパス
+    signOut: '/',
   },
   // Cookie設定を追加
   cookies: {
@@ -42,13 +43,12 @@ export const authOptions: NextAuthOptions = {
     // JWTトークン生成時のコールバック
     async jwt({ token, user }) {
       if (user) {
-        // ユーザー情報がある場合、トークンにユーザーIDを追加
-        return { ...token, id: user.id };
+        token.id = user.id;
       }
       return token;
     },
     // セッション処理時のコールバック
-    async session({ session, token }) {
+    async session({ token, session }) {
       if (token) {
         // トークンの情報をセッションのユーザー情報に反映
         session.user.id = token.id;

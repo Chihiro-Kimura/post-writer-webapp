@@ -13,6 +13,19 @@ export default function UserAuthForm() {
   const [isGithubLoading, setIsGithubLoading] = useState<boolean>(false);
   const [isGoogleLoading, setIsGoogleLoading] = useState<boolean>(false);
 
+  async function loginWithGoogle() {
+    setIsGoogleLoading(true);
+    try {
+      await signIn('google', {
+        callbackUrl: '/dashboard',
+      });
+    } catch (error) {
+      // エラー処理
+    } finally {
+      setIsGoogleLoading(false);
+    }
+  }
+
   return (
     <div className="grid gap-6">
       <form>
@@ -54,10 +67,7 @@ export default function UserAuthForm() {
         </Button>
 
         <Button
-          onClick={() => {
-            setIsGoogleLoading(true);
-            signIn('google', { callbackUrl: '/dashboard' });
-          }}
+          onClick={loginWithGoogle}
           className={cn(buttonVariants({ variant: 'outline' }), 'text-black')}
         >
           {isGoogleLoading ? (
