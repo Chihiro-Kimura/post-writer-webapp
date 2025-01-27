@@ -6,5 +6,6 @@ import blog__nextjsContentlayerModernBlogMdxMdx from './blog__nextjs-contentlaye
 import blog__reactBeginnersGuideBasicsAndPatternsMd from './blog__react-beginners-guide-basics-and-patterns.md.json' assert { type: 'json' }
 import blog__userefDetailMd from './blog__useref-detail.md.json' assert { type: 'json' }
 import blog__vscodeMacShortcutsMd from './blog__vscode-mac-shortcuts.md.json' assert { type: 'json' }
+import blog__nextjsContentlayerDevelopmentReviewMdx from './blog__nextjs-contentlayer-development-review.mdx.json' assert { type: 'json' }
 
-export const allPosts = [blog__gitGithubBasicsMd, blog__javascriptSyntaxTipsMdx, blog__nextjsContentlayerModernBlogMdxMdx, blog__reactBeginnersGuideBasicsAndPatternsMd, blog__userefDetailMd, blog__vscodeMacShortcutsMd]
+export const allPosts = [blog__gitGithubBasicsMd, blog__javascriptSyntaxTipsMdx, blog__nextjsContentlayerModernBlogMdxMdx, blog__reactBeginnersGuideBasicsAndPatternsMd, blog__userefDetailMd, blog__vscodeMacShortcutsMd, blog__nextjsContentlayerDevelopmentReviewMdx]
