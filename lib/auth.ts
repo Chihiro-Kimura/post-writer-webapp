@@ -26,6 +26,18 @@ export const authOptions: NextAuthOptions = {
   pages: {
     signIn: '/login', // ログインページのカスタムパス
   },
+  // Cookie設定を追加
+  cookies: {
+    state: {
+      name: 'next-auth.state',
+      options: {
+        httpOnly: true,
+        sameSite: 'lax',
+        path: '/',
+        secure: process.env.NODE_ENV === 'production',
+      },
+    },
+  },
   callbacks: {
     // JWTトークン生成時のコールバック
     async jwt({ token, user }) {
