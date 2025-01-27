@@ -1,10 +1,9 @@
-import { NextResponse } from 'next/server';
-import { NextRequest } from 'next/server';
-import { withAuth } from 'next-auth/middleware';
 import { getToken } from 'next-auth/jwt';
+import { withAuth } from 'next-auth/middleware';
+import { NextResponse } from 'next/server';
 
 export default withAuth(
-  async function middleware(req: NextRequest) {
+  async function middleware(req) {
     const token = await getToken({ req });
     const isAuth = !!token;
     const isAuthPage =
@@ -15,6 +14,7 @@ export default withAuth(
       if (isAuth) {
         return NextResponse.redirect(new URL('/dashboard', req.url));
       }
+
       return null;
     }
 
@@ -24,7 +24,7 @@ export default withAuth(
   },
   {
     callbacks: {
-      authorized: ({ req, token }) => {
+      async authorized({ req, token }) {
         return true;
       },
     },
