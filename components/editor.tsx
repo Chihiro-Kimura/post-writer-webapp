@@ -118,20 +118,27 @@ export default function Editor({ post }: EditorProps) {
 
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
-      <div className="grid w-full gap-6 md:gap-10">
-        <div className="sticky top-0 z-50 w-full bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-          <div className="flex flex-col sm:flex-row items-center justify-between w-full max-w-[800px] mx-auto px-4 sm:px-6 py-4">
-            <div className="flex items-center space-x-4 sm:space-x-10 mb-4 sm:mb-0">
+      <div className="grid w-full gap-4 md:gap-8">
+        <div className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+          <div className="flex flex-col sm:flex-row items-center justify-between w-full max-w-5xl mx-auto px-4 py-3 sm:px-6 sm:py-4">
+            <div className="flex items-center space-x-4 sm:space-x-6 mb-3 sm:mb-0">
               <Link
                 href="/dashboard"
-                className={buttonVariants({ variant: 'ghost' })}
+                className={buttonVariants({
+                  variant: 'ghost',
+                  size: 'sm',
+                  className: 'hover:bg-muted',
+                })}
               >
-                戻る
+                ←戻る
               </Link>
               <p className="text-sm text-muted-foreground">公開</p>
             </div>
             <button
-              className={buttonVariants()}
+              className={buttonVariants({
+                size: 'sm',
+                className: 'min-w-[80px] shadow-sm',
+              })}
               type="submit"
               disabled={isSaving}
             >
@@ -143,23 +150,26 @@ export default function Editor({ post }: EditorProps) {
             </button>
           </div>
         </div>
-        <div className="w-[800px] mx-auto">
+        <div className="w-full max-w-3xl px-4 sm:px-6 mx-auto">
           <TextareaAutosize
             id="title"
             autoFocus
             defaultValue={post.title}
             placeholder="タイトル"
-            className="w-full resize-none overflow-hidden bg-transparent text-5xl font-bold focus:outline-none"
+            className="w-full resize-none overflow-hidden bg-transparent text-2xl sm:text-3xl md:text-4xl font-bold focus:outline-none mb-4"
             {...register('title')}
           />
+          <div
+            id="editor"
+            className="min-h-[500px] prose prose-sm sm:prose-base max-w-none focus:outline-none"
+          />
+          <p className="text-xs sm:text-sm text-muted-foreground mt-4 select-none">
+            <kbd className="rounded-sm border bg-muted px-1.5 py-0.5 text-xs uppercase">
+              Tab
+            </kbd>{' '}
+            キーでコマンドメニューを開く
+          </p>
         </div>
-        <div id="editor" className="min-h-[500px]" />
-        <p className="text-sm text-gray-500">
-          <kbd className="rounded-md border bg-muted px-1 text-xs uppercase">
-            Tab
-          </kbd>{' '}
-          キーでコマンドメニューを開く
-        </p>
       </div>
     </form>
   );
