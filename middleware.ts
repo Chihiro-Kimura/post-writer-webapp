@@ -14,23 +14,19 @@ export default withAuth(
       if (isAuth) {
         return NextResponse.redirect(new URL('/dashboard', req.url));
       }
+
       return null;
     }
 
     if (!isAuth) {
-      let from = req.nextUrl.pathname;
-      if (req.nextUrl.search) {
-        from += req.nextUrl.search;
-      }
-      return NextResponse.redirect(
-        new URL(`/login?from=${encodeURIComponent(from)}`, req.url)
-      );
+      return NextResponse.redirect(new URL('/login', req.url));
     }
-    return null;
   },
   {
     callbacks: {
-      authorized: ({ token }) => !!token,
+      async authorized({ req, token }) {
+        return true;
+      },
     },
   }
 );
