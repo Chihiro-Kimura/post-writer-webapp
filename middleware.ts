@@ -14,17 +14,32 @@ export const config = {
   ],
 };
 
-// Basic認証の検証を行うヘルパー関数を追加
+// Basic認証の検証関数を修正
 const validateBasicAuth = (authHeader: string | null): boolean => {
-  if (!authHeader) return false;
+  if (!authHeader) {
+    console.log('No auth header'); // デバッグ用
+    return false;
+  }
 
-  const authValue = authHeader.split(' ')[1];
-  const [user, password] = atob(authValue).split(':');
+  try {
+    const authValue = authHeader.split(' ')[1];
+    const [user, password] = atob(authValue).split(':');
 
-  return (
-    user === process.env.BASIC_USERNAME &&
-    password === process.env.BASIC_PASSWORD
-  );
+    console.log('Auth check:', {
+      // デバッグ用
+      user,
+      expected: process.env.BASIC_USERNAME,
+      matches: user === process.env.BASIC_USERNAME,
+    });
+
+    return (
+      user === process.env.BASIC_USERNAME &&
+      password === process.env.BASIC_PASSWORD
+    );
+  } catch (error) {
+    console.error('Auth validation error:', error); // デバッグ用
+    return false;
+  }
 };
 
 // withAuthを使用せずに、独自のミドルウェアを実装

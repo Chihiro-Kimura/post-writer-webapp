@@ -31,6 +31,7 @@ export const authOptions: NextAuthOptions = {
     },
     async session({ token, session }) {
       if (process.env.NEXT_PUBLIC_VERCEL_ENV === 'preview') {
+        console.log('Preview session created'); // デバッグ用
         return {
           ...session,
           user: {

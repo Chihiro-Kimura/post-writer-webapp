@@ -22,18 +22,23 @@ export function PostCreateButton({
     const credentials = btoa(
       `${process.env.NEXT_PUBLIC_BASIC_USERNAME}:${process.env.NEXT_PUBLIC_BASIC_PASSWORD}`
     );
+    console.log('Credentials:', credentials);
+    console.log(
+      'Is Preview:',
+      process.env.NEXT_PUBLIC_VERCEL_ENV === 'preview'
+    );
+
     const response = await fetch('/api/posts', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        ...(process.env.NEXT_PUBLIC_VERCEL_ENV === 'preview' && {
-          Authorization: `Basic ${credentials}`,
-        }),
+        Authorization: `Basic ${credentials}`,
       },
       body: JSON.stringify({
         title: '新しい記事',
         content: '',
       }),
+      credentials: 'include',
     });
     setIsLoading(false);
     if (response.ok) {
