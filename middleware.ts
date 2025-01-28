@@ -37,17 +37,15 @@ export default withAuth(
         req.headers.get('Authorization')
       );
 
-      if (isValidBasicAuth) {
-        return NextResponse.next();
+      if (!isValidBasicAuth) {
+        return NextResponse.json(
+          { error: 'Authentication required' },
+          {
+            headers: { 'WWW-Authenticate': 'Basic realm="Secure Area"' },
+            status: 401,
+          }
+        );
       }
-
-      return NextResponse.json(
-        { error: 'Authentication required' },
-        {
-          headers: { 'WWW-Authenticate': 'Basic realm="Secure Area"' },
-          status: 401,
-        }
-      );
     }
 
     const token = await getToken({ req });
@@ -56,27 +54,38 @@ export default withAuth(
       req.nextUrl.pathname.startsWith('/login') ||
       req.nextUrl.pathname.startsWith('/register');
 
-    // callbackUrlのループを防ぐ
+    // callbackUrlの処理を改善
     const url = new URL(req.url);
     const callbackUrl = url.searchParams.get('callbackUrl');
-    if (callbackUrl && callbackUrl.includes('/login')) {
-      // ループしているcallbackUrlを除去
-      url.searchParams.delete('callbackUrl');
-      return NextResponse.redirect(url);
-    }
 
-    if (isAuthPage) {
-      if (isAuth) {
-        return NextResponse.redirect(new URL('/dashboard', req.url));
+    // 認証済みユーザーが認証ページにアクセスした場合
+    if (isAuthPage && isAuth) {
+      // callbackUrlが存在する場合はそちらにリダイレクト
+      if (
+        callbackUrl &&
+        !callbackUrl.includes('/login') &&
+        !callbackUrl.includes('/register')
+      ) {
+        return NextResponse.redirect(new URL(callbackUrl, req.url));
       }
-      return null;
+      // callbackUrlがない場合はダッシュボードへ
+      return NextResponse.redirect(new URL('/dashboard', req.url));
     }
 
-    if (!isAuth) {
+    // 未認証ユーザーが保護されたページにアクセスした場合
+    if (!isAuthPage && !isAuth) {
       const loginUrl = new URL('/login', req.url);
-      loginUrl.searchParams.set('callbackUrl', req.url);
+      // 現在のURLをcallbackUrlとして設定（認証ページは除外）
+      if (
+        !req.nextUrl.pathname.startsWith('/login') &&
+        !req.nextUrl.pathname.startsWith('/register')
+      ) {
+        loginUrl.searchParams.set('callbackUrl', req.url);
+      }
       return NextResponse.redirect(loginUrl);
     }
+
+    return NextResponse.next();
   },
   {
     callbacks: {
