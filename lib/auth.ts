@@ -30,6 +30,18 @@ export const authOptions: NextAuthOptions = {
       return token;
     },
     async session({ token, session }) {
+      if (process.env.NEXT_PUBLIC_VERCEL_ENV === 'preview') {
+        return {
+          ...session,
+          user: {
+            id: 'preview-admin',
+            name: 'Preview Admin',
+            email: 'preview@example.com',
+            image: null,
+          },
+        };
+      }
+
       if (token) {
         session.user.id = token.id;
         session.user.name = token.name;

@@ -23,9 +23,21 @@ export default function IndexPage() {
             Routerで作成されており、ユーザーが自由に投稿を作成して共有できるようになっています。
           </p>
           <div className="space-x-4">
-            <Link href="/login" className={cn(buttonVariants({ size: 'lg' }))}>
-              はじめる
-            </Link>
+            {process.env.NEXT_PUBLIC_VERCEL_ENV === 'preview' ? (
+              <Link
+                href="/dashboard"
+                className={cn(buttonVariants({ size: 'lg' }))}
+              >
+                ダッシュボードへ
+              </Link>
+            ) : (
+              <Link
+                href="/login"
+                className={cn(buttonVariants({ size: 'lg' }))}
+              >
+                はじめる
+              </Link>
+            )}
             <Link
               href={siteConfig.links.Github}
               className={cn(buttonVariants({ variant: 'outline', size: 'lg' }))}
