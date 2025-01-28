@@ -7,6 +7,50 @@ import { redirect } from 'next/navigation';
 import PostItem from '@/components/post-item';
 
 export default async function DashboardPage() {
+  // プレビュー環境の場合は認証チェックをスキップ
+  if (process.env.NEXT_PUBLIC_VERCEL_ENV === 'preview') {
+    const previewUser = {
+      id: 'preview-admin',
+      name: 'Preview Admin',
+      email: 'preview@example.com',
+    };
+
+    const posts = await db.post.findMany({
+      where: {
+        authorId: previewUser.id,
+      },
+      select: {
+        id: true,
+        title: true,
+        published: true,
+        createdAt: true,
+      },
+      orderBy: {
+        createdAt: 'desc',
+      },
+    });
+
+    return (
+      <DashBoardShell>
+        <DashBoardHeader heading="記事投稿" text="記事の作成と管理">
+          <PostCreateButton />
+        </DashBoardHeader>
+        <div>
+          {posts.length === 0 ? (
+            <div className="text-muted-foreground">記事がありません</div>
+          ) : (
+            <div className="divide-y border rounded-md">
+              {posts.map((post) => (
+                <PostItem key={post.id} post={post} />
+              ))}
+            </div>
+          )}
+        </div>
+      </DashBoardShell>
+    );
+  }
+
+  // 通常環境での処理
   const user = await getCurrentUser();
 
   if (!user) {
