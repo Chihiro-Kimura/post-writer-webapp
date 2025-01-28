@@ -15,25 +15,32 @@ export const config = {
   ],
 };
 
+// Basic認証の検証を行うヘルパー関数を追加
+const validateBasicAuth = (authHeader: string | null): boolean => {
+  if (!authHeader) return false;
+
+  const authValue = authHeader.split(' ')[1];
+  const [user, password] = atob(authValue).split(':');
+
+  return (
+    user === process.env.BASIC_USERNAME &&
+    password === process.env.BASIC_PASSWORD
+  );
+};
+
 // previewConfigを削除し、単一のmiddleware関数に統合
 export default withAuth(
   async function middleware(req) {
     // プレビュー環境での Basic 認証チェック
     if (process.env.NEXT_PUBLIC_VERCEL_ENV === 'preview') {
-      const basicAuth = req.headers.get('Authorization');
-      if (basicAuth) {
-        const authValue = basicAuth.split(' ')[1];
-        const [user, password] = atob(authValue).split(':');
+      const isValidBasicAuth = validateBasicAuth(
+        req.headers.get('Authorization')
+      );
 
-        if (
-          user === process.env.BASIC_USERNAME &&
-          password === process.env.BASIC_PASSWORD
-        ) {
-          // Basic認証が成功した場合は、そのまま通過させる
-          return NextResponse.next();
-        }
+      if (isValidBasicAuth) {
+        return NextResponse.next();
       }
-      // Basic認証が失敗した場合は、401を返す
+
       return NextResponse.json(
         { error: 'Authentication required' },
         {
@@ -65,15 +72,7 @@ export default withAuth(
       async authorized({ req, token }) {
         // プレビュー環境でBasic認証がある場合は常に許可
         if (process.env.NEXT_PUBLIC_VERCEL_ENV === 'preview') {
-          const basicAuth = req.headers.get('Authorization');
-          if (basicAuth) {
-            const authValue = basicAuth.split(' ')[1];
-            const [user, password] = atob(authValue).split(':');
-            return (
-              user === process.env.BASIC_USERNAME &&
-              password === process.env.BASIC_PASSWORD
-            );
-          }
+          return validateBasicAuth(req.headers.get('Authorization'));
         }
         return true;
       },
