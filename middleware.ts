@@ -31,6 +31,13 @@ const validateBasicAuth = (authHeader: string | null): boolean => {
 // previewConfigを削除し、単一のmiddleware関数に統合
 export default withAuth(
   async function middleware(req) {
+    // デバッグ用のログ出力
+    console.log('Middleware Path:', req.nextUrl.pathname);
+    console.log(
+      'Is Preview:',
+      process.env.NEXT_PUBLIC_VERCEL_ENV === 'preview'
+    );
+
     // プレビュー環境での Basic 認証チェック
     if (process.env.NEXT_PUBLIC_VERCEL_ENV === 'preview') {
       const isValidBasicAuth = validateBasicAuth(
@@ -54,35 +61,56 @@ export default withAuth(
       req.nextUrl.pathname.startsWith('/login') ||
       req.nextUrl.pathname.startsWith('/register');
 
-    // 認証済みユーザーが認証ページにアクセスした場合
-    if (isAuthPage && isAuth) {
-      // シンプルにダッシュボードへリダイレクト
-      return NextResponse.redirect(new URL('/dashboard', req.url));
-    }
+    console.log('Auth Status:', { isAuth, isAuthPage });
 
-    // 未認証ユーザーが保護されたページにアクセスした場合
-    if (!isAuthPage && !isAuth) {
-      const loginUrl = new URL('/login', req.url);
-      // 現在のパスが保護されたページの場合のみcallbackUrlを設定
-      if (
-        req.nextUrl.pathname.startsWith('/dashboard') ||
-        req.nextUrl.pathname.startsWith('/editor')
-      ) {
-        loginUrl.searchParams.set('callbackUrl', req.nextUrl.pathname);
+    // 認証ページへのアクセスを処理
+    if (isAuthPage) {
+      if (isAuth) {
+        console.log(
+          'Authenticated user accessing auth page - redirecting to dashboard'
+        );
+        return NextResponse.redirect(new URL('/dashboard', req.url));
       }
-      return NextResponse.redirect(loginUrl);
+      console.log('Unauthenticated user accessing auth page - allowing access');
+      return NextResponse.next();
     }
 
+    // 保護されたページへのアクセスを処理
+    const isProtectedPage =
+      req.nextUrl.pathname.startsWith('/dashboard') ||
+      req.nextUrl.pathname.startsWith('/editor');
+
+    if (isProtectedPage) {
+      if (!isAuth) {
+        console.log(
+          'Unauthenticated user accessing protected page - redirecting to login'
+        );
+        const loginUrl = new URL('/login', req.url);
+        loginUrl.searchParams.set('callbackUrl', req.nextUrl.pathname);
+        return NextResponse.redirect(loginUrl);
+      }
+      console.log(
+        'Authenticated user accessing protected page - allowing access'
+      );
+      return NextResponse.next();
+    }
+
+    // その他のページは通常通り処理
+    console.log('Accessing public page - allowing access');
     return NextResponse.next();
   },
   {
     callbacks: {
       async authorized({ req, token }) {
+        // Basic認証のチェックのみを行う
         if (process.env.NEXT_PUBLIC_VERCEL_ENV === 'preview') {
           return validateBasicAuth(req.headers.get('Authorization'));
         }
         return true;
       },
+    },
+    pages: {
+      signIn: '/login',
     },
   }
 );
