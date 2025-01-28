@@ -23,8 +23,17 @@ export function PostCreateButton({
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
+        ...(process.env.NEXT_PUBLIC_VERCEL_ENV === 'preview' && {
+          Authorization: `Basic ${btoa(
+            `${process.env.BASIC_USERNAME}:${process.env.BASIC_PASSWORD}`
+          )}`,
+        }),
       },
-      body: JSON.stringify({ title: '新しい記事', content: '' }),
+      body: JSON.stringify({
+        title: '新しい記事',
+        content: '',
+      }),
+      credentials: 'include',
     });
     setIsLoading(false);
     if (response.ok) {

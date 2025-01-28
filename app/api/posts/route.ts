@@ -10,12 +10,48 @@ const postSchema = z.object({
   content: z.string().optional(),
 });
 
+// Basic認証の検証関数
+const validateBasicAuth = (req: NextRequest): boolean => {
+  const authHeader = req.headers.get('Authorization');
+  if (!authHeader) return false;
+
+  const authValue = authHeader.split(' ')[1];
+  const [user, password] = atob(authValue).split(':');
+
+  return (
+    user === process.env.BASIC_USERNAME &&
+    password === process.env.BASIC_PASSWORD
+  );
+};
+
 export async function POST(req: NextRequest) {
   try {
-    // 認証セッションの取得
-    const session = await getServerSession(authOptions);
+    // プレビュー環境の場合はBasic認証を確認
+    if (process.env.NEXT_PUBLIC_VERCEL_ENV === 'preview') {
+      if (!validateBasicAuth(req)) {
+        return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      }
+      // プレビュー環境用のユーザーID
+      const previewUserId = 'preview-admin';
+      const { title, content } = await req.json();
+      const parsed = postSchema.parse({ title, content });
 
-    // 未認証の場合は403エラーを返す
+      const post = await db.post.create({
+        data: {
+          title: parsed.title,
+          content: parsed.content,
+          authorId: previewUserId,
+        },
+        select: {
+          id: true,
+        },
+      });
+
+      return NextResponse.json(post);
+    }
+
+    // 通常環境での処理
+    const session = await getServerSession(authOptions);
     if (!session) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
     }
