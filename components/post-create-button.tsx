@@ -19,21 +19,21 @@ export function PostCreateButton({
   const { toast } = useToast();
   const handleClick = async () => {
     setIsLoading(true);
+    const credentials = btoa(
+      `${process.env.NEXT_PUBLIC_BASIC_USERNAME}:${process.env.NEXT_PUBLIC_BASIC_PASSWORD}`
+    );
     const response = await fetch('/api/posts', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
         ...(process.env.NEXT_PUBLIC_VERCEL_ENV === 'preview' && {
-          Authorization: `Basic ${btoa(
-            `${process.env.BASIC_USERNAME}:${process.env.BASIC_PASSWORD}`
-          )}`,
+          Authorization: `Basic ${credentials}`,
         }),
       },
       body: JSON.stringify({
         title: '新しい記事',
         content: '',
       }),
-      credentials: 'include',
     });
     setIsLoading(false);
     if (response.ok) {

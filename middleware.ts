@@ -35,10 +35,20 @@ export default async function middleware(req: NextRequest) {
   // プレビュー環境での処理
   if (process.env.NEXT_PUBLIC_VERCEL_ENV === 'preview') {
     const authHeader = req.headers.get('Authorization');
-    // Basic認証が通っていれば、すべてのページにアクセス可能
+
+    // APIエンドポイントへのリクエストの場合は、Basic認証をチェックして次に進む
+    if (req.nextUrl.pathname.startsWith('/api/')) {
+      if (validateBasicAuth(authHeader)) {
+        return NextResponse.next();
+      }
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    // API以外のページアクセスの場合は、Basic認証をチェック
     if (validateBasicAuth(authHeader)) {
       return NextResponse.next();
     }
+
     // Basic認証が通っていない場合、Basic認証を要求
     return new NextResponse(null, {
       status: 401,
