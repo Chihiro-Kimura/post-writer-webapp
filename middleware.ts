@@ -56,6 +56,15 @@ export default withAuth(
       req.nextUrl.pathname.startsWith('/login') ||
       req.nextUrl.pathname.startsWith('/register');
 
+    // callbackUrlのループを防ぐ
+    const url = new URL(req.url);
+    const callbackUrl = url.searchParams.get('callbackUrl');
+    if (callbackUrl && callbackUrl.includes('/login')) {
+      // ループしているcallbackUrlを除去
+      url.searchParams.delete('callbackUrl');
+      return NextResponse.redirect(url);
+    }
+
     if (isAuthPage) {
       if (isAuth) {
         return NextResponse.redirect(new URL('/dashboard', req.url));
@@ -64,7 +73,9 @@ export default withAuth(
     }
 
     if (!isAuth) {
-      return NextResponse.redirect(new URL('/login', req.url));
+      const loginUrl = new URL('/login', req.url);
+      loginUrl.searchParams.set('callbackUrl', req.url);
+      return NextResponse.redirect(loginUrl);
     }
   },
   {
