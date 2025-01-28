@@ -31,13 +31,23 @@ export const authOptions: NextAuthOptions = {
     },
     async session({ token, session }) {
       if (process.env.NEXT_PUBLIC_VERCEL_ENV === 'preview') {
-        console.log('Preview session created'); // デバッグ用
-        return {
-          ...session,
-          user: {
+        // プレビューユーザーが存在しない場合は作成
+        const previewUser = await db.user.upsert({
+          where: { email: 'preview@example.com' },
+          update: {},
+          create: {
             id: 'preview-admin',
             name: 'Preview Admin',
             email: 'preview@example.com',
+          },
+        });
+
+        return {
+          ...session,
+          user: {
+            id: previewUser.id,
+            name: previewUser.name,
+            email: previewUser.email,
             image: null,
           },
         };

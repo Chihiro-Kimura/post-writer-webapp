@@ -31,8 +31,18 @@ export async function POST(req: NextRequest) {
       if (!validateBasicAuth(req)) {
         return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
       }
-      // プレビュー環境用のユーザーID
-      const previewUserId = 'preview-admin';
+
+      const previewUser = await db.user.findUnique({
+        where: { email: 'preview@example.com' },
+      });
+
+      if (!previewUser) {
+        return NextResponse.json(
+          { error: 'Preview user not found' },
+          { status: 500 }
+        );
+      }
+
       const { title, content } = await req.json();
       const parsed = postSchema.parse({ title, content });
 
@@ -40,7 +50,7 @@ export async function POST(req: NextRequest) {
         data: {
           title: parsed.title,
           content: parsed.content,
-          authorId: previewUserId,
+          authorId: previewUser.id,
         },
         select: {
           id: true,
