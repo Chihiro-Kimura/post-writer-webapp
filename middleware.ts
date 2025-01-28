@@ -38,75 +38,58 @@ export default withAuth(
       process.env.NEXT_PUBLIC_VERCEL_ENV === 'preview'
     );
 
-    // プレビュー環境での Basic 認証チェック
+    // プレビュー環境での処理
     if (process.env.NEXT_PUBLIC_VERCEL_ENV === 'preview') {
-      const isValidBasicAuth = validateBasicAuth(
-        req.headers.get('Authorization')
-      );
-
-      if (!isValidBasicAuth) {
-        return NextResponse.json(
-          { error: 'Authentication required' },
-          {
-            headers: { 'WWW-Authenticate': 'Basic realm="Secure Area"' },
-            status: 401,
-          }
-        );
+      const authHeader = req.headers.get('Authorization');
+      // Basic認証が通っていれば、すべてのページにアクセス可能
+      if (validateBasicAuth(authHeader)) {
+        return NextResponse.next();
       }
+      // Basic認証が通っていない場合、Basic認証を要求
+      return new NextResponse(null, {
+        status: 401,
+        headers: {
+          'WWW-Authenticate': 'Basic realm="Secure Area"',
+        },
+      });
     }
 
+    // プレビュー環境以外は通常の認証フロー
     const token = await getToken({ req });
     const isAuth = !!token;
     const isAuthPage =
       req.nextUrl.pathname.startsWith('/login') ||
       req.nextUrl.pathname.startsWith('/register');
 
-    console.log('Auth Status:', { isAuth, isAuthPage });
-
-    // 認証ページへのアクセスを処理
+    // 以下、本番環境用の通常の認証フロー
     if (isAuthPage) {
       if (isAuth) {
-        console.log(
-          'Authenticated user accessing auth page - redirecting to dashboard'
-        );
         return NextResponse.redirect(new URL('/dashboard', req.url));
       }
-      console.log('Unauthenticated user accessing auth page - allowing access');
       return NextResponse.next();
     }
 
-    // 保護されたページへのアクセスを処理
     const isProtectedPage =
       req.nextUrl.pathname.startsWith('/dashboard') ||
       req.nextUrl.pathname.startsWith('/editor');
 
-    if (isProtectedPage) {
-      if (!isAuth) {
-        console.log(
-          'Unauthenticated user accessing protected page - redirecting to login'
-        );
-        const loginUrl = new URL('/login', req.url);
-        loginUrl.searchParams.set('callbackUrl', req.nextUrl.pathname);
-        return NextResponse.redirect(loginUrl);
-      }
-      console.log(
-        'Authenticated user accessing protected page - allowing access'
-      );
-      return NextResponse.next();
+    if (isProtectedPage && !isAuth) {
+      const loginUrl = new URL('/login', req.url);
+      loginUrl.searchParams.set('callbackUrl', req.nextUrl.pathname);
+      return NextResponse.redirect(loginUrl);
     }
 
-    // その他のページは通常通り処理
-    console.log('Accessing public page - allowing access');
     return NextResponse.next();
   },
   {
     callbacks: {
-      async authorized({ req, token }) {
-        // Basic認証のチェックのみを行う
+      authorized({ req, token }) {
+        // プレビュー環境では常に認証を許可
         if (process.env.NEXT_PUBLIC_VERCEL_ENV === 'preview') {
-          return validateBasicAuth(req.headers.get('Authorization'));
+          return true;
         }
-        return true;
+        // 本番環境ではトークンベースの認証を要求
+        return !!token;
       },
     },
     pages: {
