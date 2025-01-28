@@ -26,26 +26,21 @@ export default withAuth(
         const [user, password] = atob(authValue).split(':');
 
         if (
-          user !== process.env.BASIC_USERNAME ||
-          password !== process.env.BASIC_PASSWORD
+          user === process.env.BASIC_USERNAME &&
+          password === process.env.BASIC_PASSWORD
         ) {
-          return NextResponse.json(
-            { error: 'Invalid credentials' },
-            {
-              headers: { 'WWW-Authenticate': 'Basic realm="Secure Area"' },
-              status: 401,
-            }
-          );
+          // Basic認証が成功した場合は、そのまま通過させる
+          return NextResponse.next();
         }
-      } else {
-        return NextResponse.json(
-          { error: 'Please enter credentials' },
-          {
-            headers: { 'WWW-Authenticate': 'Basic realm="Secure Area"' },
-            status: 401,
-          }
-        );
       }
+      // Basic認証が失敗した場合は、401を返す
+      return NextResponse.json(
+        { error: 'Authentication required' },
+        {
+          headers: { 'WWW-Authenticate': 'Basic realm="Secure Area"' },
+          status: 401,
+        }
+      );
     }
 
     const token = await getToken({ req });
@@ -68,6 +63,18 @@ export default withAuth(
   {
     callbacks: {
       async authorized({ req, token }) {
+        // プレビュー環境でBasic認証がある場合は常に許可
+        if (process.env.NEXT_PUBLIC_VERCEL_ENV === 'preview') {
+          const basicAuth = req.headers.get('Authorization');
+          if (basicAuth) {
+            const authValue = basicAuth.split(' ')[1];
+            const [user, password] = atob(authValue).split(':');
+            return (
+              user === process.env.BASIC_USERNAME &&
+              password === process.env.BASIC_PASSWORD
+            );
+          }
+        }
         return true;
       },
     },
