@@ -54,33 +54,21 @@ export default withAuth(
       req.nextUrl.pathname.startsWith('/login') ||
       req.nextUrl.pathname.startsWith('/register');
 
-    // callbackUrlの処理を改善
-    const url = new URL(req.url);
-    const callbackUrl = url.searchParams.get('callbackUrl');
-
     // 認証済みユーザーが認証ページにアクセスした場合
     if (isAuthPage && isAuth) {
-      // callbackUrlが存在する場合はそちらにリダイレクト
-      if (
-        callbackUrl &&
-        !callbackUrl.includes('/login') &&
-        !callbackUrl.includes('/register')
-      ) {
-        return NextResponse.redirect(new URL(callbackUrl, req.url));
-      }
-      // callbackUrlがない場合はダッシュボードへ
+      // シンプルにダッシュボードへリダイレクト
       return NextResponse.redirect(new URL('/dashboard', req.url));
     }
 
     // 未認証ユーザーが保護されたページにアクセスした場合
     if (!isAuthPage && !isAuth) {
       const loginUrl = new URL('/login', req.url);
-      // 現在のURLをcallbackUrlとして設定（認証ページは除外）
+      // 現在のパスが保護されたページの場合のみcallbackUrlを設定
       if (
-        !req.nextUrl.pathname.startsWith('/login') &&
-        !req.nextUrl.pathname.startsWith('/register')
+        req.nextUrl.pathname.startsWith('/dashboard') ||
+        req.nextUrl.pathname.startsWith('/editor')
       ) {
-        loginUrl.searchParams.set('callbackUrl', req.url);
+        loginUrl.searchParams.set('callbackUrl', req.nextUrl.pathname);
       }
       return NextResponse.redirect(loginUrl);
     }
@@ -90,7 +78,6 @@ export default withAuth(
   {
     callbacks: {
       async authorized({ req, token }) {
-        // プレビュー環境でBasic認証がある場合は常に許可
         if (process.env.NEXT_PUBLIC_VERCEL_ENV === 'preview') {
           return validateBasicAuth(req.headers.get('Authorization'));
         }
